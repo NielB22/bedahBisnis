@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>bedahBisnis — Scene Test</title>
+    <title>bedahBisnis — Kopi Susu</title>
     <style>
         * {
             margin: 0;
@@ -13,6 +13,7 @@
 
         body {
             background: #1a1a2e;
+            font-family: monospace;
         }
 
         canvas {
@@ -24,13 +25,26 @@
             top: 12px;
             left: 12px;
             color: #fff;
-            font: 13px monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        #legend {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.8;
+            text-align: right;
         }
     </style>
 </head>
 
 <body>
-    <div id="info">bedahBisnis v0.1 — scene test</div>
+    <div id="info">bedahBisnis v0.2<br>Kopi Susu — Bedah Biaya</div>
+    <div id="legend"></div>
+
     <script type="importmap">
 {
   "imports": {
@@ -41,43 +55,85 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- SCENE SETUP ---
+        // --- LOAD parts.json ---
+        const data = await fetch('../research/kopi-susu/parts.json').then(r => r.json());
+        const layers = data.layers;
+        const CUPS_PER_DAY = 150;
+        const DAYS = 30;
+
+        // Hitung nilai per cup untuk biaya tetap
+        const processed = layers.map(l => ({
+            ...l,
+            valuPerCup: l.fixed ? l.value / (CUPS_PER_DAY * DAYS) : l.value
+        }));
+
+        const totalPerCup = processed.reduce((s, l) => s + l.valuPerCup, 0);
+        const unitRp = 0.0006; // tinggi per Rp1 (skala visual)
+
+        // --- SCENE ---
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x1a1a2e);
 
-        // --- KAMERA ISOMETRIK ---
         const aspect = window.innerWidth / window.innerHeight;
-        const d = 8;
-        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 100);
+        const d = 12;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 200);
+        camera.position.set(18, 18, 18);
+        camera.lookAt(0, 3, 0);
 
-        // Sudut isometrik: 35.26° vertikal, 45° horizontal
-        camera.position.set(10, 10, 10);
-        camera.lookAt(0, 0, 0);
-
-        // --- RENDERER ---
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
-        // --- CAHAYA ---
-        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambient);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 10, 5);
-        scene.add(dirLight);
+        const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+        dir.position.set(8, 16, 8);
+        scene.add(dir);
 
-        // --- TEST OBJECT: satu box ---
-        const geo = new THREE.BoxGeometry(2, 0.5, 2);
-        const mat = new THREE.MeshLambertMaterial({ color: 0x3B1F0A });
-        const mesh = new THREE.Mesh(geo, mat);
-        scene.add(mesh);
+        // --- BUILD LAYERS ---
+        let currentY = 0;
+        const legendHTML = [];
 
-        // Outline
-        const edges = new THREE.EdgesGeometry(geo);
-        const lineMat = new THREE.LineBasicMaterial({ color: 0x000000 });
-        const outline = new THREE.LineSegments(edges, lineMat);
-        mesh.add(outline);
+        processed.forEach(layer => {
+            const h = Math.max(layer.valuPerCup * unitRp, 0.3); // min height
+            const isLiquid = layer.shape === 'cylinder';
+            const w = 2.5;
+
+            let geo;
+            if (isLiquid) {
+                geo = new THREE.CylinderGeometry(w / 2, w / 2, h, 6);
+            } else {
+                geo = new THREE.BoxGeometry(w, h, w);
+            }
+
+            const color = new THREE.Color(layer.color);
+            const mat = new THREE.MeshLambertMaterial({ color });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.y = currentY + h / 2;
+            scene.add(mesh);
+
+            // Outline
+            const edges = new THREE.EdgesGeometry(geo);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
+            const outline = new THREE.LineSegments(edges, lineMat);
+            mesh.add(outline);
+
+            // Legend
+            const rpText = layer.fixed
+                ? `Rp${layer.valuPerCup.toFixed(0)}/cup`
+                : `Rp${layer.value.toLocaleString('id')}`;
+            legendHTML.push(`<span style="color:${layer.color}">■</span> ${layer.label} — ${rpText}`);
+
+            currentY += h + 0.05;
+        });
+
+        // Legend + total
+        legendHTML.push(`<hr style="border-color:#555;margin:4px 0">`);
+        legendHTML.push(`<b>Total/cup: Rp${Math.round(totalPerCup).toLocaleString('id')}</b>`);
+        legendHTML.push(`Harga jual: Rp${data.meta.price.toLocaleString('id')}`);
+        legendHTML.push(`Margin: Rp${(data.meta.price - totalPerCup).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`);
+        document.getElementById('legend').innerHTML = legendHTML.join('<br>');
 
         // --- RENDER LOOP ---
         function animate() {
@@ -86,7 +142,6 @@
         }
         animate();
 
-        // --- RESIZE ---
         window.addEventListener('resize', () => {
             const aspect = window.innerWidth / window.innerHeight;
             camera.left = -d * aspect;
