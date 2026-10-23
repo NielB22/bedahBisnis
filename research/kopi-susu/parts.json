@@ -1,0 +1,100 @@
+{
+    "meta": {
+        "topic": "Kopi Susu",
+        "version": "0.1.0",
+        "unit": "IDR",
+        "price": 25000
+    },
+    "layers": [
+        {
+            "id": "cup",
+            "label": "Cup & Tutup",
+            "shape": "cylinder",
+            "color": "#FFFFFF",
+            "value": 1700,
+            "tier": "dimodelkan"
+        },
+        {
+            "id": "es",
+            "label": "Es Batu",
+            "shape": "cylinder",
+            "color": "#AEE6F8",
+            "value": 300,
+            "tier": "dimodelkan"
+        },
+        {
+            "id": "susu",
+            "label": "Susu Segar",
+            "shape": "cylinder",
+            "color": "#FFF8E7",
+            "value": 3300,
+            "tier": "dimodelkan"
+        },
+        {
+            "id": "aren",
+            "label": "Gula Aren",
+            "shape": "cylinder",
+            "color": "#C8860A",
+            "value": 900,
+            "tier": "dimodelkan"
+        },
+        {
+            "id": "espresso",
+            "label": "Espresso Shot",
+            "shape": "cylinder",
+            "color": "#3B1F0A",
+            "value": 4320,
+            "tier": "dimodelkan"
+        },
+        {
+            "id": "sewa",
+            "label": "Sewa Tempat",
+            "shape": "box",
+            "color": "#E8D5B7",
+            "value": 9000000,
+            "tier": "dimodelkan",
+            "fixed": true,
+            "per": "month"
+        },
+        {
+            "id": "gaji",
+            "label": "Gaji Karyawan",
+            "shape": "box",
+            "color": "#D4A574",
+            "value": 13500000,
+            "tier": "dimodelkan",
+            "fixed": true,
+            "per": "month"
+        },
+        {
+            "id": "utilitas",
+            "label": "Listrik & Air",
+            "shape": "box",
+            "color": "#B8D4E8",
+            "value": 2250000,
+            "tier": "dimodelkan",
+            "fixed": true,
+            "per": "month"
+        },
+        {
+            "id": "mesin",
+            "label": "Cicilan Mesin",
+            "shape": "box",
+            "color": "#C8C8C8",
+            "value": 1250000,
+            "tier": "dimodelkan",
+            "fixed": true,
+            "per": "month"
+        },
+        {
+            "id": "promo",
+            "label": "Promosi",
+            "shape": "box",
+            "color": "#F4A261",
+            "value": 1500000,
+            "tier": "dimodelkan",
+            "fixed": true,
+            "per": "month"
+        }
+    ]
+}
