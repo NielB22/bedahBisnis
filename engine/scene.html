@@ -3,186 +3,675 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>bedahBisnis — Kopi Susu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Familjen+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
     <style>
+        /* Layout: stage kiri (gelas isometrik meledak jadi lapisan biaya), panel kontrol + angka kanan; satu kolom di HP */
+        :root {
+            --bg: #eeede9;
+            --surface: #f9f8f5;
+            --ink: #1e1c1a;
+            --muted: #625d57;
+            --rule: #d9d5ce;
+            --scene-bg: #e6e3dd;
+            --part-line: #1e1c1a;
+            --c-espresso: #4b2e22;
+            --c-milk: #f1ece2;
+            --c-aren: #a8642a;
+            --c-ice: #cfe3ea;
+            --c-cup: #b9c0c6;
+            --c-ops1: #a9a39a;
+            --c-ops2: #8d867c;
+            --code-red: #d4463a;
+            --code-green: #2f9a5f;
+            --code-yellow: #f0b400;
+            --active: #1e1c1a;
+            --on-active: #f9f8f5;
+            --f-display: "Familjen Grotesk", "Archivo", system-ui, sans-serif;
+            --f-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #141312;
+                --surface: #1c1a18;
+                --ink: #ebe7e1;
+                --muted: #a39d95;
+                --rule: #2e2b28;
+                --scene-bg: #191715;
+                --part-line: #070605;
+                --c-espresso: #5a3729;
+                --c-milk: #e4ddd0;
+                --c-aren: #b06d30;
+                --c-ice: #b9d2db;
+                --c-cup: #8e979f;
+                --c-ops1: #6f6a63;
+                --c-ops2: #5b5650;
+                --code-red: #e8584b;
+                --code-green: #3db574;
+                --code-yellow: #f5c02a;
+                --active: #ebe7e1;
+                --on-active: #141312;
+                color-scheme: dark;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #141312;
+            --surface: #1c1a18;
+            --ink: #ebe7e1;
+            --muted: #a39d95;
+            --rule: #2e2b28;
+            --scene-bg: #191715;
+            --part-line: #070605;
+            --c-espresso: #5a3729;
+            --c-milk: #e4ddd0;
+            --c-aren: #b06d30;
+            --c-ice: #b9d2db;
+            --c-cup: #8e979f;
+            --c-ops1: #6f6a63;
+            --c-ops2: #5b5650;
+            --code-red: #e8584b;
+            --code-green: #3db574;
+            --code-yellow: #f5c02a;
+            --active: #ebe7e1;
+            --on-active: #141312;
+            color-scheme: dark;
+        }
+
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            box-sizing: border-box
         }
 
         body {
-            background: #1a1a2e;
-            font-family: monospace;
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--f-body);
+            font-size: 15px;
+            line-height: 1.5
         }
 
-        canvas {
+        .wrap {
+            max-width: 1260px;
+            margin: 0 auto;
+            padding-block: 20px 32px;
+            padding-left: max(16px, env(safe-area-inset-left, 0px));
+            padding-right: max(16px, env(safe-area-inset-right, 0px));
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 350px;
+            gap: 20px
+        }
+
+        @media (max-width:880px) {
+            .wrap {
+                grid-template-columns: minmax(0, 1fr)
+            }
+        }
+
+        .stage {
+            position: relative;
+            height: clamp(420px, 78vh, 800px);
+            background: var(--scene-bg);
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            overflow: hidden
+        }
+
+        @media (max-width:880px) {
+            .stage {
+                height: clamp(420px, 66vh, 600px)
+            }
+        }
+
+        .stage canvas {
             display: block;
+            width: 100%;
+            height: 100%
         }
 
-        #info {
-            position: fixed;
+        .badge {
+            position: absolute;
             top: 12px;
             left: 12px;
-            color: #fff;
-            font-size: 13px;
-            line-height: 1.6;
+            font: 500 11px/1 var(--f-mono);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px solid var(--rule);
+            padding: 6px 8px;
+            border-radius: 3px
         }
 
-        #legend {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            color: #fff;
+        .labels {
+            position: absolute;
+            inset: 0;
+            pointer-events: none
+        }
+
+        .labels svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible
+        }
+
+        .labels line {
+            stroke: var(--ink);
+            stroke-width: 1
+        }
+
+        .labels circle {
+            fill: var(--ink)
+        }
+
+        .tag {
+            position: absolute;
+            transform: translateY(-50%);
+            background: var(--surface);
+            color: var(--ink);
+            border: 1px solid var(--ink);
+            padding: 3px 7px;
+            border-radius: 2px;
+            white-space: nowrap;
+            display: flex;
+            gap: 8px;
+            align-items: baseline
+        }
+
+        .tag b {
+            font: 600 12px/1.25 var(--f-body)
+        }
+
+        .tag span {
+            font: 500 11px/1.25 var(--f-mono);
+            font-variant-numeric: tabular-nums;
+            color: var(--muted)
+        }
+
+        .tag[hidden] {
+            display: none
+        }
+
+        .tag.good {
+            border-color: var(--code-green)
+        }
+
+        .tag.good b {
+            color: var(--code-green)
+        }
+
+        .tag.bad {
+            border-color: var(--code-red)
+        }
+
+        .tag.bad b {
+            color: var(--code-red)
+        }
+
+        .tag.price {
+            background: var(--ink);
+            color: var(--surface);
+            border-color: var(--ink);
+            transform: translate(-100%, -50%)
+        }
+
+        .tag.price span {
+            color: var(--surface);
+            opacity: .8
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0
+        }
+
+        h1 {
+            font: 700 30px/1.05 var(--f-display);
+            margin: 0;
+            letter-spacing: -.01em;
+            text-wrap: balance
+        }
+
+        .q {
+            margin: 6px 0 0;
+            color: var(--muted)
+        }
+
+        .group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .lbl {
+            font: 500 11px/1 var(--f-mono);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px
+        }
+
+        .lbl output {
+            font: 500 12px/1 var(--f-mono);
+            letter-spacing: 0;
+            text-transform: none;
+            color: var(--ink)
+        }
+
+        .seg {
+            display: flex;
+            border: 1px solid var(--ink);
+            border-radius: 4px;
+            overflow: hidden
+        }
+
+        .seg button {
+            flex: 1;
+            min-width: 0;
+            font: 500 13px/1.2 var(--f-body);
+            padding: 8px 6px;
+            border: 0;
+            border-left: 1px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+            cursor: pointer
+        }
+
+        .seg button:first-child {
+            border-left: 0
+        }
+
+        .seg button[aria-pressed="true"] {
+            background: var(--active);
+            color: var(--on-active)
+        }
+
+        .seg button:focus-visible,
+        input:focus-visible,
+        summary:focus-visible {
+            outline: 2px solid var(--code-yellow);
+            outline-offset: 2px
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--ink)
+        }
+
+        input[type=range]:disabled {
+            opacity: .35
+        }
+
+        .readout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+            border-radius: 4px;
+            overflow: hidden
+        }
+
+        .cell {
+            background: var(--surface);
+            padding: 10px 12px;
+            min-width: 0
+        }
+
+        .cell .v {
+            font: 500 19px/1.15 var(--f-mono);
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere
+        }
+
+        .cell .k {
             font-size: 12px;
-            line-height: 1.8;
-            text-align: right;
+            color: var(--muted);
+            margin-top: 3px
+        }
+
+        .v.good {
+            color: var(--code-green)
+        }
+
+        .v.bad {
+            color: var(--code-red)
+        }
+
+        details {
+            border-top: 1px solid var(--rule);
+            padding-top: 12px
+        }
+
+        summary {
+            cursor: pointer;
+            font: 600 14px/1.3 var(--f-body)
+        }
+
+        summary code {
+            font-family: var(--f-mono);
+            font-weight: 500
+        }
+
+        pre {
+            margin: 10px 0 0;
+            max-height: 260px;
+            overflow: auto;
+            background: var(--surface);
+            border: 1px solid var(--rule);
+            border-radius: 4px;
+            padding: 10px;
+            font: 400 11px/1.55 var(--f-mono);
+            color: var(--ink)
+        }
+
+        .note {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0
         }
     </style>
 </head>
 
 <body>
-    <div id="info">bedahBisnis v0.2<br>Kopi Susu — Bedah Biaya</div>
-    <div id="legend"></div>
 
-    <script type="importmap">
-{
-  "imports": {
-    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
-  }
-}
-</script>
-    <script type="module">
-        import * as THREE from 'three';
+    <div class="wrap">
+        <div class="stage" id="stage">
+            <canvas id="c" aria-label="Gelas kopi susu isometrik yang dibelah jadi lapisan biaya"></canvas>
+            <div class="labels" id="labels"><svg id="leaders"></svg></div>
+            <div class="badge">Tinggi lapisan = porsi rupiah</div>
+        </div>
 
-        // --- LOAD parts.json ---
-        const data = await fetch('../research/kopi-susu/parts.json').then(r => r.json());
-        const layers = data.layers;
-        const CUPS_PER_DAY = 150;
-        const DAYS = 30;
+        <aside class="panel">
+            <header>
+                <h1 id="title">Kopi Susu Bedah</h1>
+                <p class="q" id="question"></p>
+            </header>
 
-        // Hitung nilai per cup untuk biaya tetap
-        const processed = layers.map(l => ({
-            ...l,
-            valuPerCup: l.fixed ? l.value / (CUPS_PER_DAY * DAYS) : l.value
-        }));
+            <div class="group"><span class="lbl">Tampilan</span>
+                <div class="seg" data-key="cut"><button id="b-utuh" data-v="0">Utuh</button><button id="b-belah"
+                        data-v="1">Dibelah</button></div>
+            </div>
 
-        const totalPerCup = processed.reduce((s, l) => s + l.valuPerCup, 0);
-        const unitRp = 0.0006; // tinggi per Rp1 (skala visual)
+            <div class="group"><span class="lbl">Dijual lewat</span>
+                <div class="seg" data-key="channel"><button id="b-kedai" data-v="kedai">Kedai langsung</button><button
+                        id="b-app" data-v="aplikasi">Aplikasi ojol</button></div>
+            </div>
 
-        // --- SCENE ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
+            <div class="group"><label class="lbl" for="cups">Gelas terjual per hari <output
+                        id="o-cups">150</output></label>
+                <input id="cups" type="range" min="40" max="300" step="10" value="150">
+            </div>
 
-        const aspect = window.innerWidth / window.innerHeight;
-        const d = 12;
-        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 200);
-        camera.position.set(18, 18, 18);
-        camera.lookAt(0, 7, 0);
+            <div class="group"><label class="lbl" for="kom">Komisi aplikasi <output id="o-kom">20%</output></label>
+                <input id="kom" type="range" min="10" max="30" step="1" value="20">
+            </div>
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
+            <div class="group"><span class="lbl">Sorot</span>
+                <div class="seg" data-key="hl"><button data-v="all">Semua</button><button
+                        data-v="bahan">Bahan</button><button data-v="operasional">Operasional</button><button
+                        data-v="untung">Untung</button></div>
+            </div>
 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambient);
-        const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-        dir.position.set(8, 16, 8);
-        scene.add(dir);
+            <div class="readout">
+                <div class="cell">
+                    <div class="v" id="r-cost">–</div>
+                    <div class="k">Biaya per gelas</div>
+                </div>
+                <div class="cell">
+                    <div class="v" id="r-profit">–</div>
+                    <div class="k">Untung per gelas</div>
+                </div>
+                <div class="cell">
+                    <div class="v" id="r-month">–</div>
+                    <div class="k">Untung sebulan</div>
+                </div>
+                <div class="cell">
+                    <div class="v" id="r-bep">–</div>
+                    <div class="k">Titik impas</div>
+                </div>
+            </div>
+            <p class="note">Semua angka adalah <strong>model contoh</strong> kedai kecil di kota besar, bukan data kedai
+                tertentu. Komisi aplikasi diatur manual karena tarif tiap platform berbeda dan berubah; cek dashboard
+                merchant. Harga belum termasuk pajak restoran yang biasanya ditambahkan di atas harga menu.</p>
 
-        // --- BUILD LAYERS ---
-        let currentY = 0;
-        const legendHTML = [];
+            <details>
+                <summary>Dibangun dari <code>parts.json</code></summary>
+                <p class="note" style="margin-top:8px">Bedanya, tinggi tiap lapisan dihitung dari rupiah: bahan per
+                    gelas, biaya bulanan dibagi jumlah gelas, dan komisi sebagai persen harga.</p>
+                <pre id="spec"></pre>
+            </details>
+        </aside>
+    </div>
 
-        processed.forEach(layer => {
-            const h = Math.max(layer.valuPerCup * unitRp, 0.3); // min height
-            const isLiquid = layer.shape === 'cylinder';
-            const w = 2.5;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        (async function () {
+            const T = THREE;
 
-            let geo;
-            if (isLiquid) {
-                geo = new THREE.CylinderGeometry(w / 2, w / 2, h, 6);
-            } else {
-                geo = new THREE.BoxGeometry(w, h, w);
+            /* ---------- data dari research/kopi-susu/parts.json ---------- */
+            const DATA = await fetch("../research/kopi-susu/parts.json").then(r => r.json());
+            const SPEC = DATA.layers;            // urutan dari bawah ke atas
+            const MODEL = DATA.meta;             // price, days, cupsPerDay, unitPerRp, rBottom, rTop
+            document.getElementById("title").textContent = MODEL.topic + " Bedah";
+            document.getElementById("question").textContent = MODEL.question || "";
+            document.getElementById("spec").textContent = "[\n" + SPEC.map(s => "  " + JSON.stringify(s)).join(",\n") + "\n]";
+
+            /* ---------- state ---------- */
+            const state = { cut: 1, channel: "kedai", cups: MODEL.cupsPerDay, kom: 20, hl: "all" };
+            document.getElementById("cups").value = state.cups;
+            const fmtRp = n => (n < 0 ? "−" : "") + "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
+            const fmtShort = n => { const a = Math.abs(n), s = n < 0 ? "−" : ""; return a >= 1e6 ? s + "Rp" + (a / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 }) + " jt" : fmtRp(n); };
+
+            function compute() {
+                const monthlyCups = state.cups * MODEL.days;
+                const kom = state.channel === "aplikasi" ? state.kom / 100 : 0;
+                const rows = SPEC.map(s => {
+                    let v = 0;
+                    if (s.perCup) v = s.perCup;
+                    else if (s.monthly) v = s.monthly / monthlyCups;
+                    else if (s.pctOfPrice !== undefined) v = MODEL.price * kom;
+                    return { s, v };
+                });
+                const cost = rows.filter(r => r.s.id !== "untung").reduce((a, r) => a + r.v, 0);
+                const profit = MODEL.price - cost;
+                rows.find(r => r.s.id === "untung").v = Math.max(profit, 0);
+                const variable = SPEC.filter(s => s.perCup).reduce((a, s) => a + s.perCup, 0) + MODEL.price * kom;
+                const fixed = SPEC.filter(s => s.monthly).reduce((a, s) => a + s.monthly, 0);
+                const bep = (MODEL.price - variable) > 0 ? fixed / (MODEL.price - variable) / MODEL.days : Infinity;
+                return { rows, cost, profit, bep, monthly: profit * monthlyCups };
             }
 
-            const color = new THREE.Color(layer.color);
-            const mat = new THREE.MeshLambertMaterial({ color });
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.y = currentY + h / 2;
-            scene.add(mesh);
+            /* ---------- renderer ---------- */
+            const stage = document.getElementById("stage"), canvas = document.getElementById("c");
+            const renderer = new T.WebGLRenderer({ canvas, antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            const scene = new T.Scene(), camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+            scene.add(new T.AmbientLight(0xffffff, 0.6));
+            const sun = new T.DirectionalLight(0xffffff, 0.6); sun.position.set(-4, 10, 6); scene.add(sun);
 
-            // Outline
-            const edges = new THREE.EdgesGeometry(geo);
-            const lineMat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1 });
-            const outline = new THREE.LineSegments(edges, lineMat);
-            mesh.add(outline);
-
-            // Legend
-            const rpText = layer.fixed
-                ? `Rp${layer.valuPerCup.toFixed(0)}/cup`
-                : `Rp${layer.value.toLocaleString('id')}`;
-            legendHTML.push(`<span style="color:${layer.color}">■</span> ${layer.label} — ${rpText}`);
-
-            currentY += h + 0.05;
-        });
-
-        // Legend + total
-        legendHTML.push(`<hr style="border-color:#555;margin:4px 0">`);
-        legendHTML.push(`<b>Total/cup: Rp${Math.round(totalPerCup).toLocaleString('id')}</b>`);
-        legendHTML.push(`Harga jual: Rp${data.meta.price.toLocaleString('id')}`);
-        legendHTML.push(`Margin: Rp${(data.meta.price - totalPerCup).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`);
-        document.getElementById('legend').innerHTML = legendHTML.join('<br>');
-
-        // --- EXPLODE STATE ---
-        const meshes = [];
-        const baseY = [];
-        scene.children.forEach(obj => {
-            if (obj.isMesh) {
-                meshes.push(obj);
-                baseY.push(obj.position.y);
+            const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+            const pal = {};
+            function readPal() {
+                ["espresso", "milk", "aren", "ice", "cup", "ops1", "ops2"].forEach(k => pal[k] = new T.Color(tok("--c-" + k)));
+                pal.red = new T.Color(tok("--code-red")); pal.green = new T.Color(tok("--code-green"));
+                pal.line = new T.Color(tok("--part-line")); pal.bg = new T.Color(tok("--scene-bg")); pal.ink = new T.Color(tok("--ink"));
             }
-        });
+            readPal();
 
-        let exploded = false;
-        let animating = false;
-        const GAP = 0.7; // jarak antar layer saat explode
+            const radiusAt = y => MODEL.rBottom + (MODEL.rTop - MODEL.rBottom) * Math.min(y, 7.5) / 6;
 
-        // Tombol
-        const btn = document.createElement('button');
-        btn.textContent = 'EXPLODE';
-        btn.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 28px;background:#f4a261;border:none;border-radius:6px;font:bold 14px monospace;cursor:pointer;letter-spacing:1px;';
-        document.body.appendChild(btn);
-
-        btn.addEventListener('click', () => {
-            if (animating) return;
-            exploded = !exploded;
-            btn.textContent = exploded ? 'IMPLODE' : 'EXPLODE';
-        });
-
-        // --- RENDER LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-
-            meshes.forEach((mesh, i) => {
-                const target = exploded
-                    ? baseY[i] + i * GAP
-                    : baseY[i];
-                mesh.position.y += (target - mesh.position.y) * 0.08;
+            const layers = SPEC.map(s => {
+                const mat = new T.MeshPhongMaterial({ flatShading: true, shininess: 0, specular: 0x000000, transparent: true });
+                const mesh = new T.Mesh(new T.BufferGeometry(), mat);
+                const em = new T.LineBasicMaterial({ transparent: true });
+                const edges = new T.LineSegments(new T.BufferGeometry(), em); mesh.add(edges);
+                scene.add(mesh);
+                return { s, mesh, mat, edges, em, h: 0, target: 0, opacity: 1, built: -1, y0: 0, y1: 0 };
             });
+            // lid + straw
+            const lidMat = new T.MeshPhongMaterial({ flatShading: true, shininess: 0, specular: 0x000000, transparent: true });
+            const lid = new T.Mesh(new T.CylinderGeometry(1, 1, 0.16, 48), lidMat); scene.add(lid);
+            const lidEdgeMat = new T.LineBasicMaterial({ transparent: true });
+            lid.add(new T.LineSegments(new T.EdgesGeometry(lid.geometry, 25), lidEdgeMat));
+            const straw = new T.Mesh(new T.CylinderGeometry(0.09, 0.09, 2.4, 12), new T.MeshPhongMaterial({ flatShading: true, shininess: 0, specular: 0x000000, transparent: true }));
+            straw.rotation.z = -0.22; scene.add(straw);
+            // price ring
+            const ringMat = new T.MeshBasicMaterial({ transparent: true });
+            const ring = new T.Mesh(new T.TorusGeometry(1, 0.035, 6, 72), ringMat); ring.rotation.x = Math.PI / 2; scene.add(ring);
 
-            renderer.render(scene, camera);
-        }
-        animate();
+            function applyColors() {
+                readPal(); scene.background = pal.bg;
+                layers.forEach(L => { L.mat.color.copy(pal[L.s.color]); L.em.color.copy(pal.line); });
+                lidMat.color.copy(pal.cup); lidEdgeMat.color.copy(pal.line); straw.material.color.copy(pal.ink);
+            }
 
-        window.addEventListener('resize', () => {
-            const aspect = window.innerWidth / window.innerHeight;
-            camera.left = -d * aspect;
-            camera.right = d * aspect;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+            /* ---------- UI ---------- */
+            function sync() {
+                document.querySelectorAll(".seg").forEach(seg => {
+                    seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(String(state[seg.dataset.key]) === b.dataset.v)));
+                });
+                document.getElementById("o-cups").textContent = state.cups;
+                document.getElementById("o-kom").textContent = state.kom + "%";
+                document.getElementById("kom").disabled = state.channel !== "aplikasi";
+                update();
+            }
+            document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e => {
+                const b = e.target.closest("button"); if (!b) return;
+                const k = seg.dataset.key; state[k] = k === "cut" ? Number(b.dataset.v) : b.dataset.v; sync();
+            }));
+            document.getElementById("cups").addEventListener("input", e => { state.cups = Number(e.target.value); sync(); });
+            document.getElementById("kom").addEventListener("input", e => { state.kom = Number(e.target.value); sync(); });
+
+            /* ---------- labels ---------- */
+            const labelsEl = document.getElementById("labels"), svg = document.getElementById("leaders"), NS = "http://www.w3.org/2000/svg";
+            const tags = layers.map(L => {
+                const el = document.createElement("div"); el.className = "tag"; el.innerHTML = "<b></b><span></span>"; labelsEl.appendChild(el);
+                const line = document.createElementNS(NS, "line"), dot = document.createElementNS(NS, "circle"); dot.setAttribute("r", "2.5");
+                svg.appendChild(line); svg.appendChild(dot); return { L, el, line, dot };
+            });
+            const priceTag = document.createElement("div"); priceTag.className = "tag price"; priceTag.innerHTML = "<b>Harga jual</b><span>" + fmtRp(MODEL.price) + "</span>"; labelsEl.appendChild(priceTag);
+
+            let data = compute();
+            function update() {
+                data = compute();
+                data.rows.forEach((r, i) => { layers[i].target = r.v * MODEL.unitPerRp; layers[i].value = r.v; });
+                const g = (id, txt, cls) => { const e = document.getElementById(id); e.textContent = txt; e.className = "v" + (cls ? " " + cls : ""); };
+                g("r-cost", fmtRp(data.cost));
+                g("r-profit", fmtRp(data.profit), data.profit >= 0 ? "good" : "bad");
+                g("r-month", fmtShort(data.monthly), data.monthly >= 0 ? "good" : "bad");
+                g("r-bep", isFinite(data.bep) ? Math.ceil(data.bep) + " gelas/hari" : "tidak tercapai", data.bep <= state.cups ? "good" : "bad");
+            }
+
+            /* ---------- layout + loop ---------- */
+            let W = 1, H = 1, cutAmt = 1, camVH = 10, camY = 3.5;
+            function resize() { W = stage.clientWidth; H = stage.clientHeight; renderer.setSize(W, H, false); }
+            new ResizeObserver(resize).observe(stage); resize();
+            const isoDir = new T.Vector3(1, 1, 1).normalize(), screenRight = new T.Vector3(1, 0, -1).normalize();
+            const v = new T.Vector3();
+
+            function buildLayer(L, y0, h) {
+                const key = y0.toFixed(4) + "|" + h.toFixed(4);
+                if (L.built === key) return; L.built = key;
+                const hh = Math.max(h, 0.0001), rb = radiusAt(y0), rt = radiusAt(y0 + hh);
+                L.mesh.geometry.dispose(); L.mesh.geometry = new T.CylinderGeometry(rt, rb, hh, 48, 1, false);
+                L.edges.geometry.dispose(); L.edges.geometry = new T.EdgesGeometry(L.mesh.geometry, 25);
+                L.mesh.position.set(0, y0 + hh / 2, 0);
+            }
+
+            const clock = new T.Clock();
+            function frame() {
+                const dt = Math.min(clock.getDelta(), 0.05), k = 1 - Math.pow(0.0015, dt);
+                cutAmt += (state.cut - cutAmt) * k;
+                const gap = 0.28 * cutAmt;
+
+                // stack: geometric y follows rupiah (y0 in "rupiah space"), display adds gaps
+                let acc = 0, disp = 0, priceDispY = 0, priceFound = false;
+                const priceH = MODEL.price * MODEL.unitPerRp;
+                layers.forEach(L => {
+                    L.h += (L.target - L.h) * k; if (Math.abs(L.target - L.h) < 1e-4) L.h = L.target;
+                    const visible = L.h > 0.004;
+                    if (!priceFound && acc + L.h >= priceH - 1e-6) { priceDispY = disp + (priceH - acc); priceFound = true; }
+                    buildLayer(L, acc, L.h);
+                    L.mesh.position.y = disp + L.h / 2; L.mesh.visible = visible;
+                    L.y0 = disp; L.y1 = disp + L.h;
+                    const dim = state.hl === "all" || L.s.group === state.hl || (state.hl === "operasional" && L.s.group === "potongan");
+                    L.opacity += ((dim ? 1 : 0.18) - L.opacity) * k;
+                    L.mat.opacity = L.opacity; L.em.opacity = Math.min(1, L.opacity + 0.1); L.mat.depthWrite = L.opacity > 0.9;
+                    acc += L.h; if (visible) disp += L.h + gap;
+                });
+                const top = disp - gap;
+                if (!priceFound) priceDispY = top + (priceH - acc);
+                const rTopNow = radiusAt(acc);
+                lid.scale.set(rTopNow + 0.08, 1, rTopNow + 0.08); lid.position.y = top + 0.08 + 0.25 * cutAmt;
+                straw.position.set(0.35, lid.position.y + 0.6, -0.2);
+                lidMat.opacity = straw.material.opacity = 1 - 0.65 * cutAmt;
+                const rp = radiusAt(priceH) + 0.12;
+                ring.scale.set(rp, rp, 1); ring.position.y = priceDispY;
+                ringMat.color.copy(data.profit >= 0 ? pal.ink : pal.red); ringMat.opacity = 0.35 + 0.65 * cutAmt;
+
+                // camera
+                const want = Math.max(top + 1.2, priceH + 1.2);
+                camVH += (want * 1.18 + 1.6 - camVH) * k; camY += (want / 2 - camY) * k;
+                let halfH = camVH / 2, halfW = halfH * (W / H);
+                if (halfW < camVH * 0.58) { halfW = camVH * 0.58; halfH = halfW / (W / H); }
+                const shift = halfW * (W < 560 ? 0.42 : 0.34);
+                const target = new T.Vector3(0, camY, 0).addScaledVector(screenRight, shift);
+                camera.left = -halfW; camera.right = halfW; camera.top = halfH; camera.bottom = -halfH;
+                camera.position.copy(target).addScaledVector(isoDir, 40); camera.lookAt(target); camera.updateProjectionMatrix();
+                renderer.render(scene, camera);
+
+                // labels: anchor at right rim of each layer, stacked column with no overlap
+                const show = cutAmt > 0.5;
+                const items = [];
+                tags.forEach(t => {
+                    const L = t.L, vis = show && L.mesh.visible && L.opacity > 0.5;
+                    t.el.hidden = !vis; t.line.style.display = t.dot.style.display = vis ? "" : "none";
+                    if (!vis) return;
+                    const ym = (L.y0 + L.y1) / 2, r = radiusAt(ym);
+                    v.set(r * 0.7071, ym, -r * 0.7071).project(camera);
+                    items.push({ t, ax: (v.x + 1) / 2 * W, ay: (1 - v.y) / 2 * H });
+                });
+                items.sort((a, b) => b.ay - a.ay);
+                const minGap = 26; let last = Infinity;
+                items.forEach(it => { it.ty = Math.min(it.ay, last - minGap); last = it.ty; });
+                const colX = Math.max(...items.map(i => i.ax), 0) + (W < 560 ? 14 : 28);
+                items.forEach(({ t, ax, ay, ty }) => {
+                    const L = t.L, val = L.value || 0, pct = val / MODEL.price * 100;
+                    t.el.querySelector("b").textContent = L.s.label;
+                    t.el.querySelector("span").textContent = fmtRp(val) + " · " + pct.toLocaleString("id-ID", { maximumFractionDigits: 0 }) + "%";
+                    t.el.classList.toggle("good", L.s.id === "untung");
+                    t.el.classList.toggle("bad", L.s.id === "komisi");
+                    t.el.style.left = colX + "px"; t.el.style.top = ty + "px";
+                    t.line.setAttribute("x1", ax); t.line.setAttribute("y1", ay); t.line.setAttribute("x2", colX); t.line.setAttribute("y2", ty);
+                    t.dot.setAttribute("cx", ax); t.dot.setAttribute("cy", ay);
+                });
+                // price tag on left of ring
+                v.set(-rp * 0.7071, priceDispY, rp * 0.7071).project(camera);
+                priceTag.style.left = ((v.x + 1) / 2 * W - 10) + "px"; priceTag.style.top = ((1 - v.y) / 2 * H) + "px";
+                priceTag.querySelector("span").textContent = data.profit >= 0 ? fmtRp(MODEL.price) : fmtRp(MODEL.price) + " · rugi " + fmtRp(-data.profit);
+
+                requestAnimationFrame(frame);
+            }
+
+            applyColors(); sync();
+            // start from whole cup then explode, so first view settles quickly
+            layers.forEach(L => L.h = L.target);
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyColors);
+            new MutationObserver(applyColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+            requestAnimationFrame(frame);
+        })();
     </script>
 </body>
 

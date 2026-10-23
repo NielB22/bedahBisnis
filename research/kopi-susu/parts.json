@@ -1,100 +1,124 @@
 {
     "meta": {
         "topic": "Kopi Susu",
-        "version": "0.1.0",
+        "question": "Kopi susu Rp25.000, uangnya ke mana aja?",
+        "version": "0.2.0",
         "unit": "IDR",
-        "price": 25000
+        "price": 25000,
+        "days": 30,
+        "cupsPerDay": 150,
+        "unitPerRp": 0.00024,
+        "rBottom": 1.5,
+        "rTop": 2.0
     },
     "layers": [
         {
-            "id": "cup",
-            "label": "Cup & Tutup",
-            "shape": "cylinder",
-            "color": "#FFFFFF",
-            "value": 1700,
-            "tier": "dimodelkan"
-        },
-        {
-            "id": "es",
-            "label": "Es Batu",
-            "shape": "cylinder",
-            "color": "#AEE6F8",
-            "value": 300,
-            "tier": "dimodelkan"
+            "id": "aren",
+            "label": "Gula aren cair",
+            "group": "bahan",
+            "perCup": 900,
+            "basis": "20 ml",
+            "tier": "dimodelkan",
+            "color": "aren"
         },
         {
             "id": "susu",
-            "label": "Susu Segar",
-            "shape": "cylinder",
-            "color": "#FFF8E7",
-            "value": 3300,
-            "tier": "dimodelkan"
+            "label": "Susu segar",
+            "group": "bahan",
+            "perCup": 3300,
+            "basis": "150 ml × Rp22rb/L",
+            "tier": "dimodelkan",
+            "color": "milk"
         },
         {
-            "id": "aren",
-            "label": "Gula Aren",
-            "shape": "cylinder",
-            "color": "#C8860A",
-            "value": 900,
-            "tier": "dimodelkan"
+            "id": "es",
+            "label": "Es batu",
+            "group": "bahan",
+            "perCup": 300,
+            "basis": "±150 g",
+            "tier": "dimodelkan",
+            "color": "ice"
         },
         {
             "id": "espresso",
-            "label": "Espresso Shot",
-            "shape": "cylinder",
-            "color": "#3B1F0A",
-            "value": 4320,
-            "tier": "dimodelkan"
+            "label": "Espresso",
+            "group": "bahan",
+            "perCup": 4320,
+            "basis": "18 g biji × Rp240rb/kg",
+            "tier": "dimodelkan",
+            "color": "espresso"
+        },
+        {
+            "id": "cup",
+            "label": "Cup, tutup, sedotan",
+            "group": "bahan",
+            "perCup": 1700,
+            "basis": "cup 16 oz + seal",
+            "tier": "dimodelkan",
+            "color": "cup"
         },
         {
             "id": "sewa",
-            "label": "Sewa Tempat",
-            "shape": "box",
-            "color": "#E8D5B7",
-            "value": 9000000,
+            "label": "Sewa tempat",
+            "group": "operasional",
+            "monthly": 9000000,
+            "basis": "ruko kecil",
             "tier": "dimodelkan",
-            "fixed": true,
-            "per": "month"
+            "color": "ops1"
         },
         {
             "id": "gaji",
-            "label": "Gaji Karyawan",
-            "shape": "box",
-            "color": "#D4A574",
-            "value": 13500000,
+            "label": "Gaji barista",
+            "group": "operasional",
+            "monthly": 13500000,
+            "basis": "3 orang × Rp4,5 jt",
             "tier": "dimodelkan",
-            "fixed": true,
-            "per": "month"
+            "color": "ops2"
         },
         {
             "id": "utilitas",
-            "label": "Listrik & Air",
-            "shape": "box",
-            "color": "#B8D4E8",
-            "value": 2250000,
+            "label": "Listrik, air, gas",
+            "group": "operasional",
+            "monthly": 2250000,
+            "basis": "per bulan",
             "tier": "dimodelkan",
-            "fixed": true,
-            "per": "month"
+            "color": "ops1"
         },
         {
             "id": "mesin",
-            "label": "Cicilan Mesin",
-            "shape": "box",
-            "color": "#C8C8C8",
-            "value": 1250000,
+            "label": "Penyusutan mesin",
+            "group": "operasional",
+            "monthly": 1250000,
+            "basis": "Rp45 jt ÷ 36 bulan",
             "tier": "dimodelkan",
-            "fixed": true,
-            "per": "month"
+            "color": "ops2"
         },
         {
             "id": "promo",
-            "label": "Promosi",
-            "shape": "box",
-            "color": "#F4A261",
-            "value": 1500000,
+            "label": "Promo & marketing",
+            "group": "operasional",
+            "monthly": 1500000,
+            "basis": "per bulan",
             "tier": "dimodelkan",
-            "fixed": true,
-            "per": "month"
+            "color": "ops1"
+        },
+        {
+            "id": "komisi",
+            "label": "Komisi aplikasi",
+            "group": "potongan",
+            "pctOfPrice": 0.2,
+            "basis": "persen harga, atur di panel",
+            "tier": "dimodelkan",
+            "color": "red",
+            "channel": "aplikasi"
+        },
+        {
+            "id": "untung",
+            "label": "Untung bersih",
+            "group": "untung",
+            "computed": "harga − semua biaya",
+            "tier": "dihitung",
+            "color": "green"
         }
     ]
 }
