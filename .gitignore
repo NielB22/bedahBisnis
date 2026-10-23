@@ -147,3 +147,13 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Project-specific
+.env
+*.mp4
+*.wav
+*.mp3
+
+# Large media (taruh di Google Drive)
+films/**/*.mp4
+films/**/*.wav
