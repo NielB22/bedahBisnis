@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>bedahBisnis — Scene Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #info {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            color: #fff;
+            font: 13px monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="info">bedahBisnis v0.1 — scene test</div>
+    <script type="importmap">
+{
+  "imports": {
+    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
+  }
+}
+</script>
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+
+        // --- KAMERA ISOMETRIK ---
+        const aspect = window.innerWidth / window.innerHeight;
+        const d = 8;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 100);
+
+        // Sudut isometrik: 35.26° vertikal, 45° horizontal
+        camera.position.set(10, 10, 10);
+        camera.lookAt(0, 0, 0);
+
+        // --- RENDERER ---
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // --- CAHAYA ---
+        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambient);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
+
+        // --- TEST OBJECT: satu box ---
+        const geo = new THREE.BoxGeometry(2, 0.5, 2);
+        const mat = new THREE.MeshLambertMaterial({ color: 0x3B1F0A });
+        const mesh = new THREE.Mesh(geo, mat);
+        scene.add(mesh);
+
+        // Outline
+        const edges = new THREE.EdgesGeometry(geo);
+        const lineMat = new THREE.LineBasicMaterial({ color: 0x000000 });
+        const outline = new THREE.LineSegments(edges, lineMat);
+        mesh.add(outline);
+
+        // --- RENDER LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- RESIZE ---
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.left = -d * aspect;
+            camera.right = d * aspect;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>
